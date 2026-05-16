@@ -25,10 +25,14 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable()) // Tắt tính năng bảo vệ chống giả mạo web cũ liên quan đến session/cookie (Vì API không cần)
                 .authorizeHttpRequests(auth -> auth
-                        // LUẬT 1: Cho phép tất cả mọi người được gọi API Đăng ký (Tạo user mới)
+                        // Cho phép tất cả mọi người được gọi API Đăng ký (Tạo user mới)
                         .requestMatchers(HttpMethod.POST, "/users").permitAll()
+                        // Cho phép tất cả mọi người được gọi API Đăng nhập
+                        .requestMatchers(HttpMethod.POST, "/users", "/users/login").permitAll()
+                        // RẤT QUAN TRỌNG: Mở cửa cho Spring Boot hiển thị thông báo lỗi thật
+                        .requestMatchers("/error").permitAll()
 
-                        // LUẬT 2: Bắt buộc đăng nhập với mọi API còn lại (VD: Xem danh sách user)
+                        // Bắt buộc đăng nhập với mọi API còn lại (VD: Xem danh sách user)
                         .anyRequest().authenticated()
                 );
         return http.build();
