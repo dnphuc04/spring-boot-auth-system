@@ -25,4 +25,14 @@ public class UserController {
     public List<User> getAllUsers() {
         return userService.getAllUsers();
     }
+
+    //Login
+    @PostMapping("/login")
+    public String login(@RequestBody User loginRequest) {
+        // Nhận JSON khách gửi, đưa username và password cho UserService xử lý
+        String token = userService.login(loginRequest.getUsername(), loginRequest.getPassword());
+
+        // Trả về cái vé (JWT) cho khách
+        return token;
+    }
 }
