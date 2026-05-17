@@ -25,4 +25,25 @@ public class JwtUtil {
                 .signWith(key, SignatureAlgorithm.HS256) // Lấy chìa khóa bí mật đóng dấu cái cộp!
                 .compact(); // Đóng gói lại thành chuỗi String
     }
+
+    // Hàm bóc vé lấy tên người dùng (username)
+    public String extractUsername(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .getSubject();
+    }
+
+    // Hàm kiểm tra vé xem có hợp lệ không (Đúng con dấu, chưa hết hạn)
+    public boolean validateToken(String token) {
+        try {
+            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
+            return true; // Vé xịn
+        } catch (Exception e) {
+            System.out.println("Lỗi soi vé JWT: " + e.getMessage());
+            return false; // Vé giả hoặc đã hết hạn
+        }
+    }
 }
