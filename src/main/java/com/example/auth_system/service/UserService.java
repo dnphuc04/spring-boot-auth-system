@@ -20,6 +20,11 @@ public class UserService {
     private final JwtUtil jwtUtil;
 
     public User createUser(User user) {
+        // Kiểm tra trùng lặp
+        if (userRepository.existsByUsername(user.getUsername())) {
+            // Ném lỗi ra. GlobalExceptionHandler sẽ tự động bắt.
+            throw new RuntimeException("Tên đăng nhập đã tồn tại! Vui lòng chọn tên khác.");
+        }
         // Lấy mật khẩu -> Cho vào hàm băm -> Set lại vào cục user
         String rawPassword = user.getPassword();
         String encodedPassword = passwordEncoder.encode(rawPassword);

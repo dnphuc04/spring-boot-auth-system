@@ -3,17 +3,27 @@ package com.example.auth_system.exception;
 import com.example.auth_system.dto.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.time.LocalDateTime;
 
-@RestControllerAdvice // Đánh dấu đây là Tổng đài bắt lỗi toàn cục
+@RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // Bắt toàn bộ lỗi RuntimeException (Ví dụ: Lỗi "Sai mật khẩu", "User không tồn tại" mà bạn viết trong UserService)
-    // Bắt lỗi Validation
+    // Bắt lỗi logic từ Service (Sai pass, User không tồn tại...)
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<ErrorResponse> handleRuntimeException(RuntimeException ex) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    // Bắt lỗi Validation (Để trống tên, pass quá ngắn...)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException ex) {
         // Trích xuất lấy đúng cái câu chữ báo lỗi ("Tên đăng nhập không được để trống!", v.v.)
@@ -24,9 +34,6 @@ public class GlobalExceptionHandler {
                 errorMessage,
                 LocalDateTime.now()
         );
-
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
-
-    // Bạn có thể viết thêm các hàm @ExceptionHandler khác ở đây để bắt lỗi NullPointer, SQL Exception...
 }

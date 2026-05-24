@@ -30,10 +30,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Cho phép đăng ký và đăng nhập công khai (Đã sửa dấu /)
                         .requestMatchers(HttpMethod.POST, "/users", "/users/login").permitAll()
-
+                        // Cho phép hiển thị lỗi hệ thống (RẤT QUAN TRỌNG)
+                        .requestMatchers("/error").permitAll()
                         // Chặng 5: Chỉ ADMIN mới được lấy danh sách người dùng
                         .requestMatchers(HttpMethod.GET, "/users").hasRole("ADMIN")
-
                         // Bắt buộc xác thực với mọi API còn lại
                         .anyRequest().authenticated()
                 )
