@@ -1,5 +1,6 @@
 package com.example.auth_system.config;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -8,29 +9,37 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
-@EnableWebSecurity // Bật tính năng bảo mật cho Web
+@EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
 
-    // 1. Lấy hàm Bcrypt và đánh dấu @Bean để Spring Boot quản lý
+    private final JwtFilter jwtFilter;
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // 2. Viết luật cho Security
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable()) // Tắt tính năng bảo vệ chống giả mạo web cũ liên quan đến session/cookie (Vì API không cần)
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        // LUẬT 1: Cho phép tất cả mọi người được gọi API Đăng ký (Tạo user mới)
-                        .requestMatchers(HttpMethod.POST, "/users", "users/login").permitAll()
+                        // Cho phép đăng ký và đăng nhập công khai (Đã sửa dấu /)
+                        .requestMatchers(HttpMethod.POST, "/users", "/users/login").permitAll()
 
-                        // LUẬT 2: Bắt buộc đăng nhập với mọi API còn lại (VD: Xem danh sách user)
+                        // Chặng 5: Chỉ ADMIN mới được lấy danh sách người dùng
+                        .requestMatchers(HttpMethod.GET, "/users").hasRole("ADMIN")
+
+                        // Bắt buộc xác thực với mọi API còn lại
                         .anyRequest().authenticated()
-                );
+                )
+                // Chặng 4: Đấu nối trạm kiểm tra vé JWT vào trước cổng bảo mật mặc định
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
 }
