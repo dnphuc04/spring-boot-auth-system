@@ -42,7 +42,7 @@ public class UserService {
         }
 
         // 3. Đúng hết rồi thì nhờ anh thợ in vé xuất ra cái JWT
-        return jwtUtil.generateToken(username);
+        return jwtUtil.generateToken(username, user.getRole());
     }
 
     public List<User> getAllUsers() {
