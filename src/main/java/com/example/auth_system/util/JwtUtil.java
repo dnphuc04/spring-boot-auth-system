@@ -17,9 +17,10 @@ public class JwtUtil {
     private final Key key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
 
     // Hàm này làm nhiệm vụ NẶN RA CÁI VÉ
-    public String generateToken(String username) {
+    public String generateToken(String username, String role) {
         return Jwts.builder()
                 .setSubject(username) // Ghi tên khách lên vé
+                .claim("role", role) // thêm role vào bụng vé
                 .setIssuedAt(new Date()) // Ghi ngày giờ phát hành
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24)) // Hạn sử dụng vé: 1 ngày
                 .signWith(key, SignatureAlgorithm.HS256) // Lấy chìa khóa bí mật đóng dấu cái cộp!
@@ -45,5 +46,15 @@ public class JwtUtil {
             System.out.println("Lỗi soi vé JWT: " + e.getMessage());
             return false; // Vé giả hoặc đã hết hạn
         }
+    }
+
+    // Hàm mới: Moi bụng vé ra xem có ghi chữ ADMIN hay USER
+    public String extractRole(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .get("role", String.class);
     }
 }

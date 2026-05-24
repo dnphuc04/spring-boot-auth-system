@@ -18,5 +18,6 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    private String role; // Ví dụ: ADMIN hoặc USER
+    @Column(nullable = false)
+    private String role = "USER"; // Mặc định ai đăng ký mới cũng chỉ là dân thường (USER)
 }

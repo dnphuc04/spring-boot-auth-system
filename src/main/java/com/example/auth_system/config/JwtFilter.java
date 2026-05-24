@@ -6,12 +6,15 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 @Component
 public class JwtFilter extends OncePerRequestFilter {
@@ -40,10 +43,16 @@ public class JwtFilter extends OncePerRequestFilter {
             if (jwtUtil.validateToken(token)) {
                 // Vé xịn -> Lấy tên người dùng ra
                 String username = jwtUtil.extractUsername(token);
+                //Lấy role
+                String role = jwtUtil.extractRole(token);
 
-                // 4. Báo với anh Bảo vệ: "Khách VIP đây, đóng mộc cho qua!"
+                // 4. Báo với anh Bảo vệ: "Khách VIP đây, chức vụ của khách là..."
+                List<GrantedAuthority> authorities = new ArrayList<>();
+                // Quy ước của Spring Security: Quyền phải có tiền tố "ROLE_"
+                authorities.add(new SimpleGrantedAuthority("ROLE_" + role));
+
                 UsernamePasswordAuthenticationToken authToken =
-                        new UsernamePasswordAuthenticationToken(username, null, new ArrayList<>());
+                        new UsernamePasswordAuthenticationToken(username, null, authorities);
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
         }
