@@ -26,7 +26,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable()) // Tắt tính năng bảo vệ chống giả mạo web cũ liên quan đến session/cookie (Vì API không cần)
                 .authorizeHttpRequests(auth -> auth
                         // LUẬT 1: Cho phép tất cả mọi người được gọi API Đăng ký (Tạo user mới)
-                        .requestMatchers(HttpMethod.POST, "/users").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/users", "users/login").permitAll()
 
                         // LUẬT 2: Bắt buộc đăng nhập với mọi API còn lại (VD: Xem danh sách user)
                         .anyRequest().authenticated()

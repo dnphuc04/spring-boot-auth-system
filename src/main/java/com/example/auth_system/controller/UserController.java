@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/users") // Tất cả API trong class này đều bắt đầu bằng /users
@@ -16,7 +17,7 @@ public class UserController {
 
     // API 1: Tạo người dùng mới (Nhận dữ liệu JSON từ Postman)
     @PostMapping
-    public User createUser(@RequestBody User user) {
+    public User createUser(@Valid @RequestBody User user) {
         return userService.createUser(user);
     }
 
